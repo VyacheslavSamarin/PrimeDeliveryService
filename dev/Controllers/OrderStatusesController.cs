@@ -7,7 +7,7 @@ namespace dev.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class OrderStatusController : ControllerBase
+    public class OrderStatusesController : ControllerBase
     {
         private static List<OrderStatus> OrderStatuses = new List<OrderStatus>(); // Replace with a proper data source
 
