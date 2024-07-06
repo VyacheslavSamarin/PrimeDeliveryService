@@ -9,7 +9,7 @@ namespace dev.Controllers
     [Route("api/[controller]")]
     public class ProductsController : ControllerBase
     {
-        private static List<Product> Products = new List<Product>(); // Replace with a proper data source
+        private static List<Product> Products = new List<Product>();
 
         [HttpGet]
         public ActionResult<IEnumerable<Product>> GetAllProducts()

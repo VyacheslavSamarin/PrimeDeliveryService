@@ -30,6 +30,10 @@ namespace dev.Models
         [StringLength(200, ErrorMessage = "The address is too long.")]
         public string Address { get; set; }
 
+        [Required(ErrorMessage = "Please provide an current location.")]
+        [StringLength(200, ErrorMessage = "The address is too long.")]
+        public string CurrentLocation { get; set; }
+
         public static ValidationResult ValidateDeliveryDate(DateTime deliveryDate, ValidationContext context)
         {
             var order = (Order)context.ObjectInstance;

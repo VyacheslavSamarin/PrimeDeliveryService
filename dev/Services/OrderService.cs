@@ -86,7 +86,7 @@ namespace dev.Services
             _context.Orders.Add(newOrder);
             await _context.SaveChangesAsync();
 
-            orderViewModel.OrderId = newOrder.OrderId; // Обновляем Id созданного заказа
+            orderViewModel.OrderId = newOrder.OrderId;
 
             return orderViewModel;
         }
@@ -99,7 +99,6 @@ namespace dev.Services
 
             if (existingOrder == null)
             {
-                // В данном случае можно выбрасывать исключение или возвращать null / пустой объект в зависимости от требований
                 return null;
             }
 
@@ -127,7 +126,6 @@ namespace dev.Services
 
             if (order == null)
             {
-                // В данном случае можно выбрасывать исключение или возвращать false в зависимости от требований
                 return false;
             }
 
@@ -143,7 +141,6 @@ namespace dev.Services
 
             if (order == null)
             {
-                // В данном случае можно выбрасывать исключение или возвращать false в зависимости от требований
                 return false;
             }
 

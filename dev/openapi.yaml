@@ -536,6 +536,7 @@ components:
     Order:
       required:
         - address
+        - currentLocation
         - customerId
         - deliveryDate
         - orderDate
@@ -564,6 +565,10 @@ components:
           type: string
           format: date-time
         address:
+          maxLength: 200
+          minLength: 0
+          type: string
+        currentLocation:
           maxLength: 200
           minLength: 0
           type: string

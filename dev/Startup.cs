@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using dev.Data;
 using dev.Services;
+using dev.MappingProfiles;
 using dev.Models;
 
 namespace dev
@@ -19,6 +20,7 @@ namespace dev
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+            services.AddAutoMapper(typeof(MappingProfile));
             services.AddSwaggerGen();
         }
 
@@ -44,12 +46,8 @@ namespace dev
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
-            });
+            app.UseEndpoints(endpoints => endpoints.MapDefaultControllerRoute());
+
         }
     }
 }

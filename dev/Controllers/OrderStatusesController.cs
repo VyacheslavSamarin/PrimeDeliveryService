@@ -9,7 +9,7 @@ namespace dev.Controllers
     [Route("api/[controller]")]
     public class OrderStatusesController : ControllerBase
     {
-        private static List<OrderStatus> OrderStatuses = new List<OrderStatus>(); // Replace with a proper data source
+        private static List<OrderStatus> OrderStatuses = new List<OrderStatus>();
 
         [HttpGet]
         public ActionResult<IEnumerable<OrderStatus>> GetAllOrderStatuses()

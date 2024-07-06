@@ -51,7 +51,7 @@ namespace dev.Services
             _context.OrderStatuses.Add(newOrderStatus);
             await _context.SaveChangesAsync();
 
-            orderStatusViewModel.Id = newOrderStatus.Id; // Обновляем Id созданного статуса заказа
+            orderStatusViewModel.Id = newOrderStatus.Id;
 
             return orderStatusViewModel;
         }
@@ -62,7 +62,6 @@ namespace dev.Services
 
             if (existingOrderStatus == null)
             {
-                // В данном случае можно выбрасывать исключение или возвращать null / пустой объект в зависимости от требований
                 return null;
             }
 
@@ -79,7 +78,6 @@ namespace dev.Services
 
             if (orderStatus == null)
             {
-                // В данном случае можно выбрасывать исключение или возвращать false в зависимости от требований
                 return false;
             }
 
