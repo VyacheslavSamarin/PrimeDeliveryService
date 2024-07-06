@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using dev.Models;
+using dev.Services;
+using dev.ViewModels;
 
 namespace dev.Controllers
 {
@@ -9,26 +11,31 @@ namespace dev.Controllers
     [Route("api/[controller]")]
     public class ProductsController : ControllerBase
     {
-        private static List<Product> Products = new List<Product>();
+        private readonly IProductService _productService;
+
+        public ProductsController(IProductService productService)
+        {
+            _productService = productService;
+        }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Product>> GetAllProducts()
+        public async Task<ActionResult<IEnumerable<ProductViewModel>>> GetAllProducts()
         {
-            return Ok(Products);
+            var products = await _productService.GetAllProductsAsync();
+            return Ok(products);
         }
 
         [HttpPost]
-        public ActionResult<Product> CreateProduct(Product product)
+        public async Task<ActionResult<ProductViewModel>> CreateProduct(ProductViewModel productViewModel)
         {
-            product.Id = Products.Count > 0 ? Products.Max(p => p.Id) + 1 : 1;
-            Products.Add(product);
-            return CreatedAtAction(nameof(GetProductById), new { productId = product.Id }, product);
+            var createdProduct = await _productService.CreateProductAsync(productViewModel);
+            return CreatedAtAction(nameof(GetProductById), new { productId = createdProduct.Id }, createdProduct);
         }
 
         [HttpGet("{productId}")]
-        public ActionResult<Product> GetProductById(int productId)
+        public async Task<ActionResult<ProductViewModel>> GetProductById(int productId)
         {
-            var product = Products.FirstOrDefault(p => p.Id == productId);
+            var product = await _productService.GetProductByIdAsync(productId);
             if (product == null)
             {
                 return NotFound();
@@ -37,31 +44,24 @@ namespace dev.Controllers
         }
 
         [HttpPut("{productId}")]
-        public ActionResult<Product> UpdateProduct(int productId, Product updatedProduct)
+        public async Task<ActionResult<ProductViewModel>> UpdateProduct(int productId, ProductViewModel productViewModel)
         {
-            var product = Products.FirstOrDefault(p => p.Id == productId);
-            if (product == null)
+            var updatedProduct = await _productService.UpdateProductAsync(productId, productViewModel);
+            if (updatedProduct == null)
             {
                 return NotFound();
             }
-
-            product.Name = updatedProduct.Name;
-            product.Description = updatedProduct.Description;
-            product.Price = updatedProduct.Price;
-
-            return Ok(product);
+            return Ok(updatedProduct);
         }
 
         [HttpDelete("{productId}")]
-        public ActionResult DeleteProduct(int productId)
+        public async Task<ActionResult> DeleteProduct(int productId)
         {
-            var product = Products.FirstOrDefault(p => p.Id == productId);
-            if (product == null)
+            var result = await _productService.DeleteProductAsync(productId);
+            if (!result)
             {
                 return NotFound();
             }
-
-            Products.Remove(product);
             return NoContent();
         }
     }

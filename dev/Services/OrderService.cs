@@ -80,7 +80,8 @@ namespace dev.Services
                 OrderStatus = orderViewModel.OrderStatus,
                 OrderDate = orderViewModel.OrderDate,
                 DeliveryDate = orderViewModel.DeliveryDate,
-                Address = orderViewModel.Address
+                Address = orderViewModel.Address,
+                CurrentLocation = orderViewModel.CurrentLocation
             };
 
             _context.Orders.Add(newOrder);
@@ -114,6 +115,7 @@ namespace dev.Services
             existingOrder.OrderDate = orderViewModel.OrderDate;
             existingOrder.DeliveryDate = orderViewModel.DeliveryDate;
             existingOrder.Address = orderViewModel.Address;
+            existingOrder.CurrentLocation = orderViewModel.CurrentLocation;
 
             await _context.SaveChangesAsync();
 

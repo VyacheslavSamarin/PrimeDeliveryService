@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using dev.Models;
+using dev.Services;
+using dev.ViewModels;
 
 namespace dev.Controllers
 {
@@ -9,60 +11,68 @@ namespace dev.Controllers
     [Route("api/[controller]")]
     public class CustomersController : ControllerBase
     {
-        private static List<Customer> Customers = new List<Customer>();
+        private readonly ICustomerService _customerService;
 
-        [HttpGet]
-        public ActionResult<IEnumerable<Customer>> GetAllCustomers()
+        public CustomersController(ICustomerService customerService)
         {
-            return Ok(Customers);
+            _customerService = customerService;
         }
 
-        [HttpPost]
-        public ActionResult<Customer> CreateCustomer(Customer customer)
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<CustomerViewModel>>> GetAllCustomers()
         {
-            customer.Id = Customers.Count > 0 ? Customers.Max(c => c.Id) + 1 : 1;
-            Customers.Add(customer);
-            return CreatedAtAction(nameof(GetCustomerById), new { customerId = customer.Id }, customer);
+            var customers = await _customerService.GetAllCustomersAsync();
+            return Ok(customers);
         }
 
         [HttpGet("{customerId}")]
-        public ActionResult<Customer> GetCustomerById(int customerId)
+        public async Task<ActionResult<CustomerViewModel>> GetCustomerById(int customerId)
         {
-            var customer = Customers.FirstOrDefault(c => c.Id == customerId);
+            var customer = await _customerService.GetCustomerByIdAsync(customerId);
             if (customer == null)
             {
                 return NotFound();
             }
             return Ok(customer);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<CustomerViewModel>> CreateCustomer(CustomerViewModel customerViewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var createdCustomer = await _customerService.CreateCustomerAsync(customerViewModel);
+            return CreatedAtAction(nameof(GetCustomerById), new { customerId = createdCustomer.Id }, createdCustomer);
         }
 
         [HttpPut("{customerId}")]
-        public ActionResult<Customer> UpdateCustomer(int customerId, Customer updatedCustomer)
+        public async Task<ActionResult<CustomerViewModel>> UpdateCustomer(int customerId, CustomerViewModel customerViewModel)
         {
-            var customer = Customers.FirstOrDefault(c => c.Id == customerId);
-            if (customer == null)
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var updatedCustomer = await _customerService.UpdateCustomerAsync(customerId, customerViewModel);
+            if (updatedCustomer == null)
             {
                 return NotFound();
             }
 
-            customer.Name = updatedCustomer.Name;
-            customer.Address = updatedCustomer.Address;
-            customer.Email = updatedCustomer.Email;
-            customer.Phone = updatedCustomer.Phone;
-
-            return Ok(customer);
+            return Ok(updatedCustomer);
         }
 
         [HttpDelete("{customerId}")]
-        public ActionResult DeleteCustomer(int customerId)
+        public async Task<ActionResult> DeleteCustomer(int customerId)
         {
-            var customer = Customers.FirstOrDefault(c => c.Id == customerId);
-            if (customer == null)
+            var deleted = await _customerService.DeleteCustomerAsync(customerId);
+            if (!deleted)
             {
                 return NotFound();
             }
-
-            Customers.Remove(customer);
             return NoContent();
         }
     }

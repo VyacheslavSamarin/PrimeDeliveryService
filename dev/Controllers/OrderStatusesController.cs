@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using dev.Models;
+using dev.Services;
+using dev.ViewModels;
 
 namespace dev.Controllers
 {
@@ -9,57 +11,68 @@ namespace dev.Controllers
     [Route("api/[controller]")]
     public class OrderStatusesController : ControllerBase
     {
-        private static List<OrderStatus> OrderStatuses = new List<OrderStatus>();
+        private readonly IOrderStatusService _orderStatusService;
 
-        [HttpGet]
-        public ActionResult<IEnumerable<OrderStatus>> GetAllOrderStatuses()
+        public OrderStatusesController(IOrderStatusService orderStatusService)
         {
-            return Ok(OrderStatuses);
+            _orderStatusService = orderStatusService;
         }
 
-        [HttpPost]
-        public ActionResult<OrderStatus> CreateOrderStatus(OrderStatus orderStatus)
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<OrderStatusViewModel>>> GetAllOrderStatuses()
         {
-            orderStatus.Id = OrderStatuses.Count > 0 ? OrderStatuses.Max(os => os.Id) + 1 : 1;
-            OrderStatuses.Add(orderStatus);
-            return CreatedAtAction(nameof(GetOrderStatusById), new { orderStatusId = orderStatus.Id }, orderStatus);
+            var orderStatuses = await _orderStatusService.GetAllOrderStatusesAsync();
+            return Ok(orderStatuses);
         }
 
         [HttpGet("{orderStatusId}")]
-        public ActionResult<OrderStatus> GetOrderStatusById(int orderStatusId)
+        public async Task<ActionResult<OrderStatusViewModel>> GetOrderStatusById(int orderStatusId)
         {
-            var orderStatus = OrderStatuses.FirstOrDefault(os => os.Id == orderStatusId);
+            var orderStatus = await _orderStatusService.GetOrderStatusByIdAsync(orderStatusId);
             if (orderStatus == null)
             {
                 return NotFound();
             }
             return Ok(orderStatus);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<OrderStatusViewModel>> CreateOrderStatus(OrderStatusViewModel orderStatusViewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var createdOrderStatus = await _orderStatusService.CreateOrderStatusAsync(orderStatusViewModel);
+            return CreatedAtAction(nameof(GetOrderStatusById), new { orderStatusId = createdOrderStatus.Id }, createdOrderStatus);
         }
 
         [HttpPut("{orderStatusId}")]
-        public ActionResult<OrderStatus> UpdateOrderStatus(int orderStatusId, OrderStatus updatedOrderStatus)
+        public async Task<ActionResult<OrderStatusViewModel>> UpdateOrderStatus(int orderStatusId, OrderStatusViewModel orderStatusViewModel)
         {
-            var orderStatus = OrderStatuses.FirstOrDefault(os => os.Id == orderStatusId);
-            if (orderStatus == null)
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var updatedOrderStatus = await _orderStatusService.UpdateOrderStatusAsync(orderStatusId, orderStatusViewModel);
+            if (updatedOrderStatus == null)
             {
                 return NotFound();
             }
 
-            orderStatus.Name = updatedOrderStatus.Name;
-
-            return Ok(orderStatus);
+            return Ok(updatedOrderStatus);
         }
 
         [HttpDelete("{orderStatusId}")]
-        public ActionResult DeleteOrderStatus(int orderStatusId)
+        public async Task<ActionResult> DeleteOrderStatus(int orderStatusId)
         {
-            var orderStatus = OrderStatuses.FirstOrDefault(os => os.Id == orderStatusId);
-            if (orderStatus == null)
+            var deleted = await _orderStatusService.DeleteOrderStatusAsync(orderStatusId);
+            if (!deleted)
             {
                 return NotFound();
             }
-
-            OrderStatuses.Remove(orderStatus);
             return NoContent();
         }
     }
